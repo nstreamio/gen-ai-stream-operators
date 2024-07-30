@@ -1,22 +1,6 @@
-# Dynamic Stream Operator Generation using OpenAI and SwimOS
+#!/Users/fredpatton/.pyenv/shims/python
 
-Discover how combining the power of <a href="https://openai.com/api/">OpenAI’s</a> ChatGPT with the robust real-time data processing capabilities of <a href="https://www.swimos.org/">SwimOS</a> can transform your data streams into actionable insights on-the-fly. Streaming systems handle continuous and potentially unbounded streams of data, processing each piece of data in upon arrival rather than waiting for the next batch. Stream operators are designed to process data incrementally while taking into account the boundless nature of the stream. They perform various transformations, computations, or aggregations on this real-time data. In this article, we’ll demonstrate how to dynamically generate stream operators using ChatGPT and seamlessly inject them into your application at runtime.
-
-## Technical Overview
-
-Our application consists of the following components:
-
-- **OpenAI ChatGPT**: Utilized for generating stream operator code based on user input.
-- **SwimOS**: Handles real-time streaming data and provides a Python client for interacting with Nstream’s SwimOS streaming data application platform.
-- **Client code**: A Python script that integrates OpenAI and SwimOS to facilitate dynamic stream operator generation.
-
-## Code Walkthrough
-
-### Dependencies
-
-We start by importing the required libraries, including `openai` for ChatGPT and `swimos` for SwimOS. We also load environment variables from a `.env` file, which contains our OpenAI API key.
-
-```python
+# For blog post: Dynamic Stream Operator Generation using OpenAI and SwimOS
 import json
 import os
 import re
@@ -25,13 +9,7 @@ import time
 from dotenv import load_dotenv
 from openai import OpenAI
 from swimos import SwimClient
-```
 
-### SwimOS and OpenAI Client Setup
-
-We initialize the SwimOS client, specifying the host URI for either the live or simulated feed. We configure two stock data feeds: a 24/7 simulated feed and a live feed, commented out, available during market hours.
-
-```python
 # Load environment variables from .env file
 load_dotenv()
 
@@ -44,16 +22,12 @@ synced = False
 llm_client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 swim_client = SwimClient(debug=True)
 swim_client.start()
-```
 
-### Downlink Setup
 
-We create a downlink using the SwimOS Python client, providing a callback function to receive updates. We synchronize on the initialization of the Swim client before returning. We also set up a callback function to know when we are ready to receive updates.
-
-```python
 def wait_did_sync():
     global synced
     synced = True
+
 
 def setup_value_downlink(node_uri: str, callback=None):
     global swim_client
@@ -69,19 +43,9 @@ def setup_value_downlink(node_uri: str, callback=None):
     while not synced:
         time.sleep(1)
     return value_downlink
-```
 
-### ChatGPT Code Generation
 
-We define a function to generate code using ChatGPT. We utilize a retry loop to handle requests to ChatGPT, as the responses can be unpredictable. We make a call to the `chat.completions.create` endpoint and ensure we extract only the JSON data using a regular expression.
-
-```python
-def generate_llm_code(
-    prompt: str,
-    expect_json: bool = False,
-    max_retries: int = 3, 
-    retry_delay: int = 1):
-
+def generate_llm_code(prompt: str, expect_json: bool = False, max_retries: int = 3, retry_delay: int = 1):
     retries = 0
     while retries < max_retries:
         try:
@@ -120,23 +84,18 @@ def generate_llm_code(
             time.sleep(retry_delay)
 
     raise ValueError("Max retries exceeded, failed to get valid response from LLM")
-```
 
-### Dynamic Function Generation
 
-We ask ChatGPT to dynamically generate Python code for a stream operator. This approach provides flexibility, allowing us to handle various data processing needs dynamically without redeploying the application. Specifically, we request a function to maintain a simple moving average with a window size of 5.
-
-```python
 def accumulate_generate(symbol: str, streaming_operator: str, parameters: dict):
     """Generate a function to accumulate stock prices (min/max/avg) using LLM"""
     global acc
     acc = {}
 
     prompt = f"""
-    Return a JSON result, and only a JSON result. The JSON must have a single
-    top-level key: `result`. In this `result` key, store a string that contains
-    a python function with the following signature
-    `def func(acc: dict, new_value: float, params: dict):`
+    Return a JSON result, and only a JSON result. The JSON must have a single 
+    top-level key: `result`. In this `result` key, store a string that contains 
+    a python function with the following signature 
+    `def func(acc: dict, new_value: float, params: dict):` 
     and the implementation must be as follows: calculate the {streaming_operator}
     on `new_value` given accumulator state of `acc` that your function has
     defined in order to continue applying the {streaming_operator} as each new
@@ -167,15 +126,33 @@ def accumulate_generate(symbol: str, streaming_operator: str, parameters: dict):
         value_downlink.close()
         print('Streaming stopped')
 
+
 if __name__ == "__main__":
     result = accumulate_generate("AAAA", "simple moving average", {"window_size": 5})
     print(result)
-```
-
-## Conclusion
-
-In this article, we demonstrated how to integrate OpenAI's ChatGPT and SwimOS for dynamic stream operator generation. By leveraging ChatGPT's code generation capabilities and SwimOS's real-time streaming data processing, we can create efficient and scalable data processing pipelines for ad-hoc use cases.
-
-Now it's your turn! Try implementing these patterns in your own projects and see the benefits of dynamic, real-time data processing firsthand.
-
-To learn more about SwimOS, please visit <a href="https://www.swimos.org/">https://www.swimos.org/</a>
+    
+    example_output = """
+    crag_patterns % python3 snippet.py 
+    Streaming data, press Ctrl+C to stop
+    accumulate_generate_callback received for AAAA: {'timestamp': 1721672101793, 'price': 26.01, 'volume': 4597909.036889386, 'bid': 23.57, 'ask': 23.49, 'movement': -38.87}.
+    
+    AAAA -- summary: 26.01; acc: {'values': [26.01]}
+    accumulate_generate_callback received for AAAA: {'timestamp': 1721672105593, 'price': 1.52, 'volume': 8001397.9603691455, 'bid': 19.52, 'ask': 14.94, 'movement': -24.49}.
+    
+    AAAA -- summary: 13.765; acc: {'values': [26.01, 1.52]}
+    accumulate_generate_callback received for AAAA: {'timestamp': 1721672122991, 'price': 85.87, 'volume': 2152727.4653413896, 'bid': 53.12, 'ask': 66.2, 'movement': 84.35}.
+    
+    AAAA -- summary: 37.800000000000004; acc: {'values': [26.01, 1.52, 85.87]}
+    accumulate_generate_callback received for AAAA: {'timestamp': 1721672123792, 'price': 91.88, 'volume': <swimos.structures._structs._Absent object at 0x105354ce0>, 'bid': 11.16, 'ask': 91.88, 'movement': 6}.
+    
+    AAAA -- summary: 51.32; acc: {'values': [26.01, 1.52, 85.87, 91.88]}
+    accumulate_generate_callback received for AAAA: {'timestamp': 1721672134092, 'price': 96.04, 'volume': 376993.84042837605, 'bid': 57.28, 'ask': 67.35, 'movement': 4.16}.
+    
+    AAAA -- summary: 60.263999999999996; acc: {'values': [26.01, 1.52, 85.87, 91.88, 96.04]}
+    accumulate_generate_callback received for AAAA: {'timestamp': 1721672145892, 'price': 94.47, 'volume': 8028026.66065849, 'bid': 16.84, 'ask': 49.37, 'movement': -1.58}.
+    
+    AAAA -- summary: 73.956; acc: {'values': [1.52, 85.87, 91.88, 96.04, 94.47]}
+    accumulate_generate_callback received for AAAA: {'timestamp': 1721672149793, 'price': 99.41, 'volume': <swimos.structures._structs._Absent object at 0x105354ce0>, 'bid': 9.12, 'ask': 50.87, 'movement': 4.93}.
+    
+    AAAA -- summary: 93.534; acc: {'values': [85.87, 91.88, 96.04, 94.47, 99.41]}
+    """

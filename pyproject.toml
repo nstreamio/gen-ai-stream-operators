@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "crag-patterns"
+version = "0.1.0"
+description = ""
+authors = ["Fred Patton <fred@swim.inc>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+swimos = "^1.4.0a0"
+typer = "^0.12.3"
+openai = "^1.35.14"
+python-dotenv = "^1.0.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
