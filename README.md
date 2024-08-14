@@ -172,6 +172,64 @@ if __name__ == "__main__":
     print(result)
 ```
 
+## Running the code
+
+Two scripts have been provided within the `src` folder. The first script, `snippet.py` corresponds to this tutorial, and gives a streamlined walk-through of how to generate stream operators from OpenAI, and then inject them into a SwimOS client callback. You can simply invoke it by running:
+
+```sh
+python snippet.py
+```
+
+By default, it uses a simulated stock feed, as it is always available. It is also slowed down a little, to make it easier to follow. To change to the live feed, swap the commenting of lines 16 and 17 to reflect what's shown below:
+
+```python
+host_uri = "wss://stocks-live.nstream-demo.io"    # live feed during market hours
+# host_uri = "wss://stocks-simulated.nstream-demo.io" # simulated feed 24/7
+```
+
+Then, go to line 131, under `__main__` to change it to a real stock symbol like "NVDA":
+
+```python
+if __name__ == "__main__":
+    result = accumulate_generate("NVDA", "simple moving average", {"window_size": 5})
+```
+
+The second script, `main.py`, corresponds to a console app that builds on the core functionality to support natural language queries and utilize the full range of functionality.
+
+To run either script, you'll need to copy `./src/dot-env-file` to `./src/.env` and replace `<your_api_key>` with a valid OpenAI key:
+
+```
+# so just set your OpenAI key and rename this file to .env
+OPENAI_API_KEY=<your_api_key>
+```
+
+If you don't have one, you can get one here:
+<a href="https://openai.com/api/">https://openai.com/api/</a>.
+
+Then, within the `./src` folder, you can invoke the console app by running main.py. Here are some examples:
+
+```sh
+python main.py --help
+
+python main.py execute "Give me the stock price for AAAA"
+python main.py execute "Stream stock prices for AAAA"
+python main.py execute "Convert stock price for AAAA using an exchange rate of 1.2"
+python main.py execute "Create a function to convert stock prices for AAAA with an exchange rate of 1.2"
+python main.py execute "Alert me if stock price for AAAA goes below 20"
+python main.py execute "Create a function to alert me if stock price for AAAA goes below 20"
+python main.py execute "Accumulate stock prices for AAAA using average with a window size of 5"
+python main.py execute "Create a function to accumulate stock prices for AAAA using average with a window size of 5"
+
+python main.py read-adhoc AAAA
+python main.py read-streaming AAAA
+python main.py accumulate-direct AAAA avg --operation-config '{"window_size": 5}'
+python main.py accumulate-generate AAAA avg --operation-config '{"window_size": 5}'
+python main.py map-direct AAAA '{"description": "apply exchange rate", "parameters": {"exchange_rate": "1.2"}}'
+python main.py map-generate AAAA '{"description": "apply exchange rate", "parameters": {"exchange_rate": "1.2"}}'
+python main.py filter-direct AAAA '{"description": "flag any values under 20", "parameters": {"threshold": 20}}'
+python main.py filter-generate AAAA '{"description": "flag any values under 20", "parameters": {"threshold": 20}}'
+```
+
 ## Conclusion
 
 In this article, we demonstrated how to integrate OpenAI's ChatGPT and SwimOS for dynamic stream operator generation. By leveraging ChatGPT's code generation capabilities and SwimOS's real-time streaming data processing, we can create efficient and scalable data processing pipelines for ad-hoc use cases.
