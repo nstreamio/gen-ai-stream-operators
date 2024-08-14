@@ -1,3 +1,4 @@
+```sh
 python main.py execute "Give me the stock price for AAAA"
 python main.py execute "Stream stock prices for AAAA"
 python main.py execute "Convert stock price for AAAA using an exchange rate of 1.2"
@@ -15,3 +16,4 @@ python main.py map-direct AAAA '{"description": "apply exchange rate", "paramete
 python main.py map-generate AAAA '{"description": "apply exchange rate", "parameters": {"exchange_rate": "1.2"}}'
 python main.py filter-direct AAAA '{"description": "flag any values under 20", "parameters": {"threshold": 20}}'
 python main.py filter-generate AAAA '{"description": "flag any values under 20", "parameters": {"threshold": 20}}'
+```
