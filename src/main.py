@@ -536,6 +536,9 @@ def execute(command: str):
                 parameters = operation_config.get("parameters")
                 print(f"* parameters: {parameters}")
 
+        if parameters is None and 'symbol' in json_response:
+            parameters = {'symbol': json_response.get('symbol')}
+
         if not function_name or not parameters:
             raise ValueError("Invalid response from LLM")
 
